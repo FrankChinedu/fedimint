@@ -570,18 +570,15 @@ impl ServerModule for Wallet {
             });
 
         let active_consensus_version = self.consensus_module_consensus_version(dbtx).await;
-        let automatic_vote = if is_automatic_consensus_version_voting_disabled() {
-            None
-        } else {
-            self.peer_supported_consensus_version
+        let automatic_vote =  (!is_automatic_consensus_version_voting_disabled()).then(||
+        self.peer_supported_consensus_version
                 .borrow()
                 .and_then(|supported_consensus_version| {
                     // Only automatically vote if the commonly supported version is higher than the
                     // currently active one
                     (active_consensus_version < supported_consensus_version)
                         .then_some(supported_consensus_version)
-                })
-        };
+                })).expect("automatic consensus version voting should never be enabled if the environment variable is not set, so this should never panic");
 
         // Prioritizing automatic vote for now since the manual vote never resets. Once
         // that is fixed this should be switched around.
