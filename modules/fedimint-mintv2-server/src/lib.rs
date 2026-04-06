@@ -19,31 +19,31 @@ use fedimint_core::db::{
     Database, DatabaseTransaction, DatabaseVersion, IDatabaseTransactionOpsCoreTyped,
 };
 use fedimint_core::encoding::Encodable;
-use fedimint_core::envs::{FM_ENABLE_MODULE_MINTV2_ENV, is_env_var_set_opt};
+use fedimint_core::envs::{is_env_var_set_opt, FM_ENABLE_MODULE_MINTV2_ENV};
 use fedimint_core::module::audit::Audit;
 use fedimint_core::module::{
-    AmountUnit, Amounts, ApiEndpoint, ApiError, ApiVersion, CORE_CONSENSUS_VERSION,
-    CoreConsensusVersion, InputMeta, ModuleConsensusVersion, ModuleInit,
-    SupportedModuleApiVersions, TransactionItemAmounts, api_endpoint,
+    api_endpoint, AmountUnit, Amounts, ApiEndpoint, ApiError, ApiVersion, CoreConsensusVersion,
+    InputMeta, ModuleConsensusVersion, ModuleInit, SupportedModuleApiVersions,
+    TransactionItemAmounts, CORE_CONSENSUS_VERSION,
 };
 use fedimint_core::{
-    Amount, BitcoinHash, InPoint, NumPeers, NumPeersExt, OutPoint, PeerId, apply,
-    async_trait_maybe_send, push_db_key_items, push_db_pair_items,
+    apply, async_trait_maybe_send, push_db_key_items, push_db_pair_items, Amount, BitcoinHash,
+    InPoint, NumPeers, NumPeersExt, OutPoint, PeerId,
 };
 use fedimint_mintv2_common::config::{
-    FeeConsensus, MintClientConfig, MintConfig, MintConfigConsensus, MintConfigPrivate,
-    consensus_denominations,
+    consensus_denominations, FeeConsensus, MintClientConfig, MintConfig, MintConfigConsensus,
+    MintConfigPrivate,
 };
 use fedimint_mintv2_common::endpoint_constants::{
     RECOVERY_COUNT_ENDPOINT, RECOVERY_SLICE_ENDPOINT, RECOVERY_SLICE_HASH_ENDPOINT,
     SIGNATURE_SHARES_ENDPOINT, SIGNATURE_SHARES_RECOVERY_ENDPOINT,
 };
 use fedimint_mintv2_common::{
-    Denomination, MODULE_CONSENSUS_VERSION, MintCommonInit, MintConsensusItem, MintInput,
-    MintInputError, MintModuleTypes, MintOutput, MintOutputError, MintOutputOutcome, RecoveryItem,
-    verify_note,
+    verify_note, Denomination, MintCommonInit, MintConsensusItem, MintInput, MintInputError,
+    MintModuleTypes, MintOutput, MintOutputError, MintOutputOutcome, RecoveryItem,
+    MODULE_CONSENSUS_VERSION,
 };
-use fedimint_server_core::config::{PeerHandleOps, eval_poly_g2};
+use fedimint_server_core::config::{eval_poly_g2, PeerHandleOps};
 use fedimint_server_core::migration::ServerModuleDbMigrationFn;
 use fedimint_server_core::{
     ConfigGenModuleArgs, EnvVarDoc, ServerModule, ServerModuleInit, ServerModuleInitArgs,
@@ -53,7 +53,7 @@ use rand::SeedableRng;
 use rand_chacha::ChaChaRng;
 use strum::IntoEnumIterator;
 use tbs::{
-    AggregatePublicKey, BlindedSignatureShare, PublicKeyShare, SecretKeyShare, derive_pk_share,
+    derive_pk_share, AggregatePublicKey, BlindedSignatureShare, PublicKeyShare, SecretKeyShare,
 };
 use threshold_crypto::ff::Field;
 use threshold_crypto::group::Curve;
@@ -138,17 +138,6 @@ impl ServerModuleInit for MintInit {
 
     fn versions(&self, _core: CoreConsensusVersion) -> &[ModuleConsensusVersion] {
         &[MODULE_CONSENSUS_VERSION]
-    }
-
-    fn supported_api_versions(&self) -> SupportedModuleApiVersions {
-        SupportedModuleApiVersions::from_raw(
-            (CORE_CONSENSUS_VERSION.major, CORE_CONSENSUS_VERSION.minor),
-            (
-                MODULE_CONSENSUS_VERSION.major,
-                MODULE_CONSENSUS_VERSION.minor,
-            ),
-            &[(0, 1)],
-        )
     }
 
     fn is_enabled_by_default(&self) -> bool {
@@ -604,7 +593,7 @@ async fn get_recovery_count(dbtx: &mut DatabaseTransaction<'_>) -> u64 {
         .await
         .next()
         .await
-        .map_or(0, |entry| entry.0.0 + 1)
+        .map_or(0, |entry| entry.0 .0 + 1)
 }
 
 async fn get_recovery_slice(
