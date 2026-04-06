@@ -23,8 +23,7 @@ use fedimint_core::envs::{is_env_var_set_opt, FM_ENABLE_MODULE_MINTV2_ENV};
 use fedimint_core::module::audit::Audit;
 use fedimint_core::module::{
     api_endpoint, AmountUnit, Amounts, ApiEndpoint, ApiError, ApiVersion, CoreConsensusVersion,
-    InputMeta, ModuleConsensusVersion, ModuleInit, SupportedModuleApiVersions,
-    TransactionItemAmounts, CORE_CONSENSUS_VERSION,
+    InputMeta, ModuleConsensusVersion, ModuleInit, TransactionItemAmounts,
 };
 use fedimint_core::{
     apply, async_trait_maybe_send, push_db_key_items, push_db_pair_items, Amount, BitcoinHash,
@@ -147,7 +146,8 @@ impl ServerModuleInit for MintInit {
     fn get_documented_env_vars(&self) -> Vec<EnvVarDoc> {
         vec![EnvVarDoc {
             name: FM_ENABLE_MODULE_MINTV2_ENV,
-            description: "Set to 1/true to enable the MintV2 module (experimental). Disabled by default.",
+            description:
+                "Set to 1/true to enable the MintV2 module (experimental). Disabled by default.",
         }]
     }
 
